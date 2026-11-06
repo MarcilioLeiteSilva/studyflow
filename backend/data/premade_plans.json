@@ -1,0 +1,126 @@
+[
+  {
+    "id": "enem-intensivo",
+    "title": "ENEM Intensivo",
+    "category": "Vestibular",
+    "description": "Cronograma completo cobrindo as 4 áreas do conhecimento do ENEM e foco em Redação Nota 1000.",
+    "durationDays": 30,
+    "totalTasks": 18,
+    "language": "pt",
+    "tasks": [
+      {"title": "Redação: Estrutura do Texto Dissertativo-Argumentativo", "category": "Redação", "priority": 2, "dayOffset": 0},
+      {"title": "Matemática: Funções de 1º e 2º Grau e Gráficos", "category": "Matemática", "priority": 2, "dayOffset": 1},
+      {"title": "História: Era Vargas e Ditadura Militar no Brasil", "category": "História", "priority": 1, "dayOffset": 2},
+      {"title": "Física: Mecânica e Leis de Newton", "category": "Física", "priority": 2, "dayOffset": 3},
+      {"title": "Biologia: Ecologia, Cadeias Alimentares e Biomas", "category": "Biologia", "priority": 1, "dayOffset": 4},
+      {"title": "Química: Estequiometria e Cálculos Químicos", "category": "Química", "priority": 2, "dayOffset": 5},
+      {"title": "Redação: Produção de Redação com Tema Atual", "category": "Redação", "priority": 2, "dayOffset": 7},
+      {"title": "Matemática: Geometria Plana e Espacial", "category": "Matemática", "priority": 2, "dayOffset": 8},
+      {"title": "Geografia: Urbanização e Problemas Ambientais no Brasil", "category": "Geografia", "priority": 1, "dayOffset": 9},
+      {"title": "Física: Eletricidade e Circuitos Elétricos", "category": "Física", "priority": 2, "dayOffset": 10},
+      {"title": "Biologia: Genética Mendeliana e Biotecnologia", "category": "Biologia", "priority": 1, "dayOffset": 12},
+      {"title": "Química: Termoquímica e Cinética Química", "category": "Química", "priority": 1, "dayOffset": 13},
+      {"title": "Filosofia e Sociologia: Cidadania e Teóricos Clássicos", "category": "Humanas", "priority": 0, "dayOffset": 15},
+      {"title": "Matemática: Probabilidade e Análise Combinatória", "category": "Matemática", "priority": 2, "dayOffset": 16},
+      {"title": "Redação: Análise de Proposta de Intervenção Social", "category": "Redação", "priority": 2, "dayOffset": 18},
+      {"title": "Física: Ondulatória e Fenômenos Ópticos", "category": "Física", "priority": 1, "dayOffset": 20},
+      {"title": "Simulado Geral de Revisão - Caderno 1", "category": "Simulado", "priority": 2, "dayOffset": 25},
+      {"title": "Simulado Geral de Revisão - Caderno 2", "category": "Simulado", "priority": 2, "dayOffset": 27}
+    ]
+  },
+  {
+    "id": "concursos-publicos",
+    "title": "Concursos Públicos Geral",
+    "category": "Concursos",
+    "description": "Base sólida nas matérias fundamentais cobradas em 90% dos concursos públicos federais e estaduais.",
+    "durationDays": 25,
+    "totalTasks": 15,
+    "language": "pt",
+    "tasks": [
+      {"title": "Direito Constitucional: Princípios Fundamentais e Direitos Individuais", "category": "Dir. Constitucional", "priority": 2, "dayOffset": 0},
+      {"title": "Português: Sintaxe do Período Simples e Composto", "category": "Português", "priority": 2, "dayOffset": 1},
+      {"title": "Direito Administrativo: Princípios da Administração (LIMPE)", "category": "Dir. Administrativo", "priority": 2, "dayOffset": 2},
+      {"title": "RLM: Proposições Lógicas, Tabela Verdade e Conectivos", "category": "Raciocínio Lógico", "priority": 1, "dayOffset": 3},
+      {"title": "Informática: Segurança da Informação, Vírus e Backups", "category": "Informática", "priority": 0, "dayOffset": 4},
+      {"title": "Direito Constitucional: Organização do Estado e Poderes", "category": "Dir. Constitucional", "priority": 2, "dayOffset": 6},
+      {"title": "Português: Concordância Verbal e Nominal com Exercícios", "category": "Português", "priority": 2, "dayOffset": 7},
+      {"title": "Direito Administrativo: Atos Administrativos e Poderes", "category": "Dir. Administrativo", "priority": 2, "dayOffset": 8},
+      {"title": "RLM: Equivalências Lógicas e Negação", "category": "Raciocínio Lógico", "priority": 1, "dayOffset": 10},
+      {"title": "Direito Administrativo: Licitações e Contratos (Lei 14.133)", "category": "Dir. Administrativo", "priority": 2, "dayOffset": 12},
+      {"title": "Português: Crase e Regência Verbal/Nominal", "category": "Português", "priority": 2, "dayOffset": 14},
+      {"title": "Direito Constitucional: Direitos Sociais e Nacionalidade", "category": "Dir. Constitucional", "priority": 1, "dayOffset": 16},
+      {"title": "Legislação Específica e Regime Jurídico Único (Lei 8.112)", "category": "Legislação", "priority": 2, "dayOffset": 18},
+      {"title": "Resolução de 50 Questões Comentadas de Português", "category": "Exercícios", "priority": 1, "dayOffset": 21},
+      {"title": "Simulado Completo das Matérias Básicas", "category": "Simulado", "priority": 2, "dayOffset": 24}
+    ]
+  },
+  {
+    "id": "programacao-dev",
+    "title": "Programação & Desenvolvimento de Software",
+    "category": "Tecnologia",
+    "description": "Fundamentos essenciais de programação, lógica, banco de dados, arquitetura e Flutter.",
+    "durationDays": 21,
+    "totalTasks": 14,
+    "language": "pt",
+    "tasks": [
+      {"title": "Lógica de Programação: Estruturas Condicionais e Laços", "category": "Lógica", "priority": 2, "dayOffset": 0},
+      {"title": "Git & GitHub: Branches, Commits semânticos e Pull Requests", "category": "DevOps", "priority": 1, "dayOffset": 1},
+      {"title": "Estruturas de Dados: Listas, Pilhas, Filas e HashMaps", "category": "Algoritmos", "priority": 2, "dayOffset": 2},
+      {"title": "POO: Classes, Encapsulamento, Herança e Polimorfismo", "category": "POO", "priority": 2, "dayOffset": 4},
+      {"title": "Bancos de Dados: Modelagem Relacional e Consultas SQL (SELECT, JOIN)", "category": "Banco de Dados", "priority": 2, "dayOffset": 6},
+      {"title": "APIs RESTful: Protocolo HTTP, JSON, Métodos e Status Codes", "category": "Backend", "priority": 1, "dayOffset": 8},
+      {"title": "Flutter: Ciclo de Vida de Widgets (Stateless vs Stateful)", "category": "Mobile", "priority": 2, "dayOffset": 10},
+      {"title": "Flutter: Gerenciamento de Estado e Reatividade", "category": "Mobile", "priority": 2, "dayOffset": 12},
+      {"title": "Clean Code: Princípios SOLID e Nomenclatura Limpa", "category": "Arquitetura", "priority": 1, "dayOffset": 14},
+      {"title": "Testes de Software: Testes Unitários e Mocking", "category": "Qualidade", "priority": 1, "dayOffset": 16},
+      {"title": "Segurança Web/Mobile: Autenticação JWT, HTTPS e Sanitização", "category": "Segurança", "priority": 2, "dayOffset": 18},
+      {"title": "Construção de Mini Projeto Completo de Portfólio", "category": "Projeto", "priority": 2, "dayOffset": 20}
+    ]
+  },
+  {
+    "id": "ingles-fluencia",
+    "title": "Inglês: Da Base à Conversação",
+    "category": "Idiomas",
+    "description": "Prática estruturada com 4 pilares: Listening, Speaking, Reading e Writing.",
+    "durationDays": 20,
+    "totalTasks": 12,
+    "language": "pt",
+    "tasks": [
+      {"title": "Grammar: Present Simple vs Present Continuous com exemplos", "category": "Grammar", "priority": 1, "dayOffset": 0},
+      {"title": "Listening: Podcast em inglês com transcrição (20 minutos)", "category": "Listening", "priority": 2, "dayOffset": 1},
+      {"title": "Vocabulary: 30 verbos e expressões mais usados no dia a dia", "category": "Vocabulary", "priority": 1, "dayOffset": 3},
+      {"title": "Speaking: Prática de Shadowing e pronúncia em voz alta", "category": "Speaking", "priority": 2, "dayOffset": 5},
+      {"title": "Grammar: Past Simple e Verbos Irregulares essenciais", "category": "Grammar", "priority": 2, "dayOffset": 7},
+      {"title": "Reading: Leitura de artigo ou notícia em inglês + vocabulário", "category": "Reading", "priority": 1, "dayOffset": 9},
+      {"title": "Writing: Escrever um pequeno parágrafo sobre sua rotina diária", "category": "Writing", "priority": 1, "dayOffset": 11},
+      {"title": "Listening: Assistir episódio de série com áudio e legendas em inglês", "category": "Listening", "priority": 1, "dayOffset": 13},
+      {"title": "Grammar: Future Tenses (Will vs Going To)", "category": "Grammar", "priority": 1, "dayOffset": 15},
+      {"title": "Phrasal Verbs: Os 20 phrasal verbs mais comuns em conversas", "category": "Vocabulary", "priority": 2, "dayOffset": 17},
+      {"title": "Conversação Livre: 15 minutos gravando áudio falando de um tema", "category": "Speaking", "priority": 2, "dayOffset": 19}
+    ]
+  },
+  {
+    "id": "oab-primeira-fase",
+    "title": "OAB - 1ª Fase Exame de Ordem",
+    "category": "Direito",
+    "description": "Foco cirúrgico nas disciplinas com maior peso na prova objetiva da OAB.",
+    "durationDays": 25,
+    "totalTasks": 14,
+    "language": "pt",
+    "tasks": [
+      {"title": "Ética Profissional: Estatuto da Advocacia e Direitos do Advogado", "category": "Ética", "priority": 2, "dayOffset": 0},
+      {"title": "Direito Constitucional: Controle de Constitucionalidade (ADI, ADC)", "category": "Constitucional", "priority": 2, "dayOffset": 2},
+      {"title": "Direito Civil: Parte Geral, Negócio Jurídico e Prescrição", "category": "Civil", "priority": 2, "dayOffset": 4},
+      {"title": "Direito Penal: Teoria do Crime, Tipicidade e Ilicitude", "category": "Penal", "priority": 2, "dayOffset": 6},
+      {"title": "Ética Profissional: Honorários Advocatícios e Sociedade de Advogados", "category": "Ética", "priority": 2, "dayOffset": 8},
+      {"title": "Processo Civil: Recursos e Teoria Geral do Processo", "category": "Proc. Civil", "priority": 1, "dayOffset": 10},
+      {"title": "Processo Penal: Inquérito Policial, Ação Penal e Prisões", "category": "Proc. Penal", "priority": 2, "dayOffset": 12},
+      {"title": "Direito do Trabalho: Contrato de Trabalho e Verbas Rescisórias", "category": "Trabalho", "priority": 1, "dayOffset": 14},
+      {"title": "Direito Tributário: Princípios Constitucionais Tributários e Espécies", "category": "Tributário", "priority": 1, "dayOffset": 16},
+      {"title": "Ética Profissional: Infrações e Sanções Disciplinares", "category": "Ética", "priority": 2, "dayOffset": 18},
+      {"title": "Direito Administrativo: Responsabilidade Civil do Estado", "category": "Administrativo", "priority": 1, "dayOffset": 20},
+      {"title": "Simulado Completo de 80 Questões Estilo FGV", "category": "Simulado", "priority": 2, "dayOffset": 23}
+    ]
+  }
+]
+

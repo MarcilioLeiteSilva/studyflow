@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudyFlow — Painel Administrativo</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    h1, h2, h3, h4, .font-heading { font-family: 'Montserrat', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen">
+
+  <!-- AUTH OVERLAY IF NOT LOGGED IN -->
+  <div id="authOverlay" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 border border-slate-100">
+      <div class="flex items-center space-x-3 mb-6">
+        <div class="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center text-white text-2xl shadow-lg shadow-indigo-200">
+          <i class="ph-bold ph-graduation-cap"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold font-heading text-slate-900">StudyFlow Admin</h1>
+          <p class="text-xs text-slate-500">Acesso Restrito ao Servidor</p>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">URL da API (Backend)</label>
+          <input id="authApiUrl" type="text" value="http://localhost:3000" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition">
+          <p class="text-[11px] text-slate-400 mt-1">Ex: https://api.seudominio.com ou http://localhost:3000</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Chave Secreta de Admin</label>
+          <input id="authSecretKey" type="password" placeholder="Digite o ADMIN_API_SECRET..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition">
+        </div>
+
+        <button onclick="handleLogin()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl shadow-lg shadow-indigo-200 transition flex items-center justify-center space-x-2">
+          <span>Acessar Painel</span>
+          <i class="ph-bold ph-arrow-right"></i>
+        </button>
+        <p id="authError" class="text-xs text-red-500 text-center hidden">Chave inválida ou backend inacessível.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN DASHBOARD CONTENT -->
+  <div class="min-h-screen flex flex-col">
+    <!-- Navbar -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-lg font-bold shadow-md shadow-indigo-100">
+            <i class="ph-bold ph-graduation-cap"></i>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="font-bold font-heading text-slate-900 text-lg">StudyFlow</span>
+              <span class="bg-indigo-50 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-indigo-200 uppercase tracking-wider">Admin</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-4">
+          <div id="backendBadge" class="hidden sm:flex items-center space-x-1.5 text-xs text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span id="backendStatusText">Backend Online</span>
+          </div>
+
+          <button onclick="logout()" class="text-xs text-slate-500 hover:text-red-600 font-medium transition flex items-center space-x-1 px-3 py-1.5 rounded-lg hover:bg-red-50">
+            <i class="ph-bold ph-sign-out"></i>
+            <span>Sair</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-8">
+      
+      <!-- Metrics Overview -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex items-center space-x-4">
+          <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-2xl">
+            <i class="ph-bold ph-book-open"></i>
+          </div>
+          <div>
+            <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Planos Cadastrados</p>
+            <h3 id="statTotalPlans" class="text-2xl font-bold font-heading text-slate-900">--</h3>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex items-center space-x-4">
+          <div class="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-2xl">
+            <i class="ph-bold ph-check-circle"></i>
+          </div>
+          <div>
+            <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Total de Tarefas</p>
+            <h3 id="statTotalTasks" class="text-2xl font-bold font-heading text-slate-900">--</h3>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex items-center space-x-4">
+          <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-2xl">
+            <i class="ph-bold ph-squares-four"></i>
+          </div>
+          <div>
+            <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Categorias</p>
+            <h3 id="statTotalCategories" class="text-2xl font-bold font-heading text-slate-900">--</h3>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex items-center space-x-4">
+          <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-2xl">
+            <i class="ph-bold ph-database"></i>
+          </div>
+          <div>
+            <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Banco de Dados</p>
+            <h3 id="statDatabase" class="text-lg font-bold font-heading text-slate-900 truncate">Detectando...</h3>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Bar -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold font-heading text-slate-900">Catálogo de Planos de Estudo</h2>
+          <p class="text-xs text-slate-500">Estes planos são oferecidos para download automático aos usuários no aplicativo móvel.</p>
+        </div>
+
+        <div class="flex items-center space-x-3">
+          <button onclick="openNewPlanModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-md shadow-indigo-200 transition flex items-center space-x-2">
+            <i class="ph-bold ph-plus"></i>
+            <span>Novo Plano de Estudos</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Plans Table -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm text-slate-600">
+            <thead class="bg-slate-50 border-b border-slate-200 text-xs font-semibold uppercase text-slate-500">
+              <tr>
+                <th class="px-6 py-4">Título do Plano</th>
+                <th class="px-6 py-4">Categoria</th>
+                <th class="px-6 py-4">Duração</th>
+                <th class="px-6 py-4">Tarefas</th>
+                <th class="px-6 py-4 text-right">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="plansTableBody" class="divide-y divide-slate-100">
+              <tr>
+                <td colspan="5" class="px-6 py-8 text-center text-slate-400">Carregando planos de estudo...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- AI Playground Tester -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-lg">
+            <i class="ph-bold ph-sparkle"></i>
+          </div>
+          <div>
+            <h3 class="font-bold font-heading text-slate-900">Testador da API de Inteligência Artificial</h3>
+            <p class="text-xs text-slate-500">Simule a geração de rotinas personalizadas como se fosse o app móvel.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="md:col-span-2">
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Disciplinas (separadas por vírgula)</label>
+            <input id="aiSubjects" type="text" placeholder="Ex: Matemática, Física Quântica, Química Orgânica" value="Matemática, Física" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Data da Prova</label>
+            <input id="aiDate" type="date" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none">
+          </div>
+        </div>
+
+        <button onclick="testAiGeneration()" id="aiBtn" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition flex items-center space-x-2">
+          <i class="ph-bold ph-play"></i>
+          <span>Gerar Rotina via Backend</span>
+        </button>
+
+        <div id="aiResultBox" class="hidden bg-slate-900 text-slate-100 p-4 rounded-xl text-xs font-mono overflow-x-auto max-h-60">
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL: NOVO / EDITAR PLANO -->
+  <div id="planModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col border border-slate-100">
+      <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
+        <h3 id="modalTitle" class="text-lg font-bold font-heading text-slate-900">Novo Plano de Estudos</h3>
+        <button onclick="closePlanModal()" class="text-slate-400 hover:text-slate-600"><i class="ph-bold ph-x text-lg"></i></button>
+      </div>
+
+      <div class="p-6 overflow-y-auto space-y-4 flex-1">
+        <input type="hidden" id="planModalId">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Título do Plano *</label>
+            <input id="planModalTitle" type="text" placeholder="Ex: Reta Final OAB 2026" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Categoria *</label>
+            <input id="planModalCategory" type="text" placeholder="Ex: Concursos, Exatas, Vestibular" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Duração (Dias)</label>
+            <input id="planModalDuration" type="number" value="15" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Idioma</label>
+            <select id="planModalLanguage" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+              <option value="pt">Português (pt)</option>
+              <option value="en">Inglês (en)</option>
+              <option value="es">Espanhol (es)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Descrição</label>
+          <textarea id="planModalDesc" rows="2" placeholder="Resumo do plano de estudos..." class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
+        </div>
+
+        <!-- Dynamic Tasks List -->
+        <div class="border-t border-slate-100 pt-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700">Tarefas do Plano</h4>
+            <button onclick="addTaskRow()" type="button" class="text-xs text-indigo-600 hover:text-indigo-700 font-semibold flex items-center space-x-1">
+              <i class="ph-bold ph-plus"></i>
+              <span>Adicionar Tarefa</span>
+            </button>
+          </div>
+
+          <div id="tasksContainer" class="space-y-2 max-h-56 overflow-y-auto pr-1">
+            <!-- Row template inserted via JS -->
+          </div>
+        </div>
+      </div>
+
+      <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-end space-x-3 bg-slate-50 rounded-b-2xl">
+        <button onclick="closePlanModal()" type="button" class="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-slate-800">Cancelar</button>
+        <button onclick="savePlan()" type="button" class="px-5 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-sm transition">Salvar Plano</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT LOGIC -->
+  <script>
+    let API_URL = localStorage.getItem('studyflow_api_url') || 'http://localhost:3000';
+    let ADMIN_SECRET = localStorage.getItem('studyflow_admin_secret') || '';
+    let plansData = [];
+
+    // Initialize
+    window.addEventListener('DOMContentLoaded', async () => {
+      // Set tomorrow's date for AI test
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 15);
+      document.getElementById('aiDate').value = tomorrow.toISOString().split('T')[0];
+
+      if (ADMIN_SECRET) {
+        document.getElementById('authOverlay').classList.add('hidden');
+        await loadDashboard();
+      } else {
+        document.getElementById('authApiUrl').value = API_URL;
+      }
+    });
+
+    async function handleLogin() {
+      const url = document.getElementById('authApiUrl').value.trim().replace(/\/$/, '');
+      const secret = document.getElementById('authSecretKey').value.trim();
+      const errEl = document.getElementById('authError');
+
+      if (!secret) {
+        errEl.innerText = 'Digite a chave de administrador.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${url}/api/admin/stats`, {
+          headers: { 'x-admin-key': secret }
+        });
+        if (!res.ok) throw new Error('Acesso negado');
+
+        API_URL = url;
+        ADMIN_SECRET = secret;
+        localStorage.setItem('studyflow_api_url', API_URL);
+        localStorage.setItem('studyflow_admin_secret', ADMIN_SECRET);
+
+        document.getElementById('authOverlay').classList.add('hidden');
+        errEl.classList.add('hidden');
+        await loadDashboard();
+      } catch (err) {
+        errEl.innerText = 'Erro: ' + err.message + '. Verifique a URL e chave.';
+        errEl.classList.remove('hidden');
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('studyflow_admin_secret');
+      ADMIN_SECRET = '';
+      document.getElementById('authOverlay').classList.remove('hidden');
+    }
+
+    async function loadDashboard() {
+      try {
+        // Fetch stats
+        const resStats = await fetch(`${API_URL}/api/admin/stats`, {
+          headers: { 'x-admin-key': ADMIN_SECRET }
+        });
+        if (resStats.ok) {
+          const { stats } = await resStats.json();
+          document.getElementById('statTotalPlans').innerText = stats.totalPlans;
+          document.getElementById('statTotalTasks').innerText = stats.totalTasks;
+          document.getElementById('statTotalCategories').innerText = stats.totalCategories;
+          document.getElementById('statDatabase').innerText = stats.database;
+          document.getElementById('backendBadge').classList.remove('hidden');
+        }
+
+        // Fetch plans
+        const resPlans = await fetch(`${API_URL}/api/admin/plans`, {
+          headers: { 'x-admin-key': ADMIN_SECRET }
+        });
+        if (resPlans.ok) {
+          const data = await resPlans.json();
+          plansData = data.plans || [];
+          renderPlansTable(plansData);
+        }
+      } catch (err) {
+        console.error('Erro ao carregar dashboard:', err);
+      }
+    }
+
+    function renderPlansTable(plans) {
+      const tbody = document.getElementById('plansTableBody');
+      if (plans.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-slate-400">Nenhum plano cadastrado. Clique em "Novo Plano" para começar.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = plans.map(p => {
+        const taskCount = Array.isArray(p.tasks) ? p.tasks.length : 0;
+        return `
+          <tr class="hover:bg-slate-50/70 transition">
+            <td class="px-6 py-4 font-semibold text-slate-900">
+              ${escapeHtml(p.title)}
+              <div class="text-[11px] text-slate-400 font-normal truncate max-w-xs">${escapeHtml(p.description || '')}</div>
+            </td>
+            <td class="px-6 py-4">
+              <span class="bg-indigo-50 text-indigo-700 text-xs font-semibold px-2.5 py-1 rounded-md border border-indigo-100">${escapeHtml(p.category)}</span>
+            </td>
+            <td class="px-6 py-4 text-xs text-slate-500">${p.duration_days || p.durationDays || 7} dias</td>
+            <td class="px-6 py-4 text-xs text-slate-500">${taskCount} tarefas</td>
+            <td class="px-6 py-4 text-right space-x-2">
+              <button onclick="editPlan('${p.id}')" class="text-indigo-600 hover:text-indigo-800 text-xs font-semibold">Editar</button>
+              <button onclick="deletePlan('${p.id}')" class="text-red-500 hover:text-red-700 text-xs font-semibold">Excluir</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Modal Add / Edit
+    function openNewPlanModal() {
+      document.getElementById('modalTitle').innerText = 'Novo Plano de Estudos';
+      document.getElementById('planModalId').value = '';
+      document.getElementById('planModalTitle').value = '';
+      document.getElementById('planModalCategory').value = '';
+      document.getElementById('planModalDuration').value = '15';
+      document.getElementById('planModalLanguage').value = 'pt';
+      document.getElementById('planModalDesc').value = '';
+      document.getElementById('tasksContainer').innerHTML = '';
+      
+      // Default 3 sample task rows
+      addTaskRow('Revisão Inicial dos Tópicos Chave', 'Geral', 'High', 0);
+      addTaskRow('Resolução de Questões Práticas', 'Geral', 'Medium', 3);
+      addTaskRow('Simulado de Avaliação', 'Geral', 'High', 7);
+
+      document.getElementById('planModal').classList.remove('hidden');
+    }
+
+    function editPlan(id) {
+      const plan = plansData.find(p => p.id === id);
+      if (!plan) return;
+
+      document.getElementById('modalTitle').innerText = 'Editar Plano de Estudos';
+      document.getElementById('planModalId').value = plan.id;
+      document.getElementById('planModalTitle').value = plan.title;
+      document.getElementById('planModalCategory').value = plan.category;
+      document.getElementById('planModalDuration').value = plan.duration_days || plan.durationDays || 7;
+      document.getElementById('planModalLanguage').value = plan.language || 'pt';
+      document.getElementById('planModalDesc').value = plan.description || '';
+      document.getElementById('tasksContainer').innerHTML = '';
+
+      if (Array.isArray(plan.tasks)) {
+        plan.tasks.forEach(t => {
+          addTaskRow(t.title, t.category, t.priority, t.days_from_now);
+        });
+      }
+      document.getElementById('planModal').classList.remove('hidden');
+    }
+
+    function closePlanModal() {
+      document.getElementById('planModal').classList.add('hidden');
+    }
+
+    function addTaskRow(title = '', category = '', priority = 'Medium', days = 0) {
+      const container = document.getElementById('tasksContainer');
+      const div = document.createElement('div');
+      div.className = 'task-row flex items-center space-x-2 bg-slate-50 p-2 rounded-xl border border-slate-200 text-xs';
+      div.innerHTML = `
+        <input type="text" placeholder="Título da Tarefa" value="${escapeHtml(title)}" class="t-title flex-1 px-2.5 py-1.5 rounded-lg border border-slate-200 focus:outline-none">
+        <input type="text" placeholder="Matéria" value="${escapeHtml(category)}" class="t-cat w-24 px-2.5 py-1.5 rounded-lg border border-slate-200 focus:outline-none">
+        <select class="t-prio px-2 py-1.5 rounded-lg border border-slate-200 focus:outline-none">
+          <option value="High" ${priority === 'High' ? 'selected' : ''}>Alta</option>
+          <option value="Medium" ${priority === 'Medium' ? 'selected' : ''}>Média</option>
+          <option value="Low" ${priority === 'Low' ? 'selected' : ''}>Baixa</option>
+        </select>
+        <div class="flex items-center space-x-1">
+          <span class="text-[10px] text-slate-400">Dia</span>
+          <input type="number" value="${days || 0}" class="t-days w-12 px-1.5 py-1.5 rounded-lg border border-slate-200 text-center focus:outline-none">
+        </div>
+        <button type="button" onclick="this.parentElement.remove()" class="text-slate-400 hover:text-red-500 p-1"><i class="ph-bold ph-trash"></i></button>
+      `;
+      container.appendChild(div);
+    }
+
+    async function savePlan() {
+      const id = document.getElementById('planModalId').value;
+      const title = document.getElementById('planModalTitle').value.trim();
+      const category = document.getElementById('planModalCategory').value.trim();
+      const durationDays = parseInt(document.getElementById('planModalDuration').value, 10) || 7;
+      const language = document.getElementById('planModalLanguage').value;
+      const description = document.getElementById('planModalDesc').value.trim();
+
+      if (!title || !category) {
+        alert('Por favor, informe pelo menos o Título e a Categoria do plano.');
+        return;
+      }
+
+      // Collect tasks
+      const taskRows = document.querySelectorAll('.task-row');
+      const tasks = [];
+      taskRows.forEach(row => {
+        const tTitle = row.querySelector('.t-title').value.trim();
+        const tCat = row.querySelector('.t-cat').value.trim() || category;
+        const tPrio = row.querySelector('.t-prio').value;
+        const tDays = parseInt(row.querySelector('.t-days').value, 10) || 0;
+        if (tTitle) {
+          tasks.push({
+            title: tTitle,
+            category: tCat,
+            priority: tPrio,
+            days_from_now: tDays
+          });
+        }
+      });
+
+      try {
+        const res = await fetch(`${API_URL}/api/admin/plans`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-key': ADMIN_SECRET
+          },
+          body: JSON.stringify({
+            id: id || undefined,
+            title,
+            category,
+            durationDays,
+            language,
+            description,
+            tasks
+          })
+        });
+
+        if (!res.ok) throw new Error('Falha ao salvar plano');
+        closePlanModal();
+        await loadDashboard();
+      } catch (err) {
+        alert('Erro ao salvar: ' + err.message);
+      }
+    }
+
+    async function deletePlan(id) {
+      if (!confirm('Tem certeza que deseja excluir este plano de estudos?')) return;
+
+      try {
+        const res = await fetch(`${API_URL}/api/admin/plans/${id}`, {
+          method: 'DELETE',
+          headers: { 'x-admin-key': ADMIN_SECRET }
+        });
+        if (!res.ok) throw new Error('Falha ao excluir');
+        await loadDashboard();
+      } catch (err) {
+        alert('Erro ao excluir: ' + err.message);
+      }
+    }
+
+    async function testAiGeneration() {
+      const subjects = document.getElementById('aiSubjects').value.trim();
+      const examDate = document.getElementById('aiDate').value;
+      const btn = document.getElementById('aiBtn');
+      const box = document.getElementById('aiResultBox');
+
+      btn.disabled = true;
+      btn.innerHTML = `<i class="ph-bold ph-spinner animate-spin"></i><span>Gerando...</span>`;
+      box.classList.remove('hidden');
+      box.innerText = 'Chamando API de IA do backend...';
+
+      try {
+        const res = await fetch(`${API_URL}/api/plans/generate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ subjects, examDate, languageCode: 'pt' })
+        });
+        const data = await res.json();
+        box.innerText = JSON.stringify(data, null, 2);
+      } catch (err) {
+        box.innerText = 'Erro: ' + err.message;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="ph-bold ph-play"></i><span>Gerar Rotina via Backend</span>`;
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+  </script>
+</body>
+</html>

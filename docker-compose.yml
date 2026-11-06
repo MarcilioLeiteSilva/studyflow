@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  # -------------------------------------------------------------
+  # 1. PostgreSQL Database
+  # -------------------------------------------------------------
+  studyflow-db:
+    image: postgres:16-alpine
+    container_name: studyflow-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: studyflow
+      POSTGRES_PASSWORD: studyflow_db_secure_password
+      POSTGRES_DB: studyflow
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - studyflow-network
+    # Ports usually not exposed externally in EasyPanel
+    ports:
+      - "5432:5432"
+
+  # -------------------------------------------------------------
+  # 2. Redis Cache & Rate Limiting
+  # -------------------------------------------------------------
+  studyflow-redis:
+    image: redis:7-alpine
+    container_name: studyflow-redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    networks:
+      - studyflow-network
+    ports:
+      - "6379:6379"
+
+  # -------------------------------------------------------------
+  # 3. StudyFlow Backend API
+  # -------------------------------------------------------------
+  studyflow-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: studyflow-backend
+    restart: unless-stopped
+    depends_on:
+      - studyflow-db
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgres://studyflow:studyflow_db_secure_password@studyflow-db:5432/studyflow
+      REDIS_URL: redis://studyflow-redis:6379
+      ADMIN_API_SECRET: studyflow_admin_secret_token_change_me
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      CORS_ORIGIN: "*"
+    ports:
+      - "3000:3000"
+    networks:
+      - studyflow-network
+
+  # -------------------------------------------------------------
+  # 4. StudyFlow Admin Dashboard
+  # -------------------------------------------------------------
+  studyflow-admin:
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+    container_name: studyflow-admin
+    restart: unless-stopped
+    depends_on:
+      - studyflow-backend
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      API_URL: http://studyflow-backend:3000
+    ports:
+      - "3001:3001"
+    networks:
+      - studyflow-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  studyflow-network:
+    driver: bridge
