@@ -35,8 +35,8 @@
       <div class="space-y-4">
         <div>
           <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">URL da API (Backend)</label>
-          <input id="authApiUrl" type="text" value="http://localhost:3000" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition">
-          <p class="text-[11px] text-slate-400 mt-1">Ex: https://api.seudominio.com ou http://localhost:3000</p>
+          <input id="authApiUrl" type="text" value="https://studyflow-study-backend.gtalg3.easypanel.host" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition">
+          <p class="text-[11px] text-slate-400 mt-1">Ex: https://studyflow-study-backend.gtalg3.easypanel.host</p>
         </div>
 
         <div>
@@ -270,7 +270,7 @@
 
   <!-- SCRIPT LOGIC -->
   <script>
-    let API_URL = localStorage.getItem('studyflow_api_url') || 'http://localhost:3000';
+    let API_URL = localStorage.getItem('studyflow_api_url') || 'https://studyflow-study-backend.gtalg3.easypanel.host';
     let ADMIN_SECRET = localStorage.getItem('studyflow_admin_secret') || '';
     let plansData = [];
 
@@ -554,3 +554,4 @@
   </script>
 </body>
 </html>
+

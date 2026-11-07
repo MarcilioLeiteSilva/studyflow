@@ -1,8 +1,6 @@
 class AIConfig {
-  // Backend API URL
-  // Utiliza http://127.0.0.1:3000 (funciona com adb reverse no dispositivo USB e web/desktop)
-  // No emulador Android puro pode-se usar http://10.0.2.2:3000
-  static const String defaultBackendUrl = 'http://127.0.0.1:3000';
+  // Backend API URL na VPS EasyPanel
+  static const String defaultBackendUrl = 'https://studyflow-study-backend.gtalg3.easypanel.host';
 
   // Configurações para chave personalizada do usuário (BYOK)
   static const String openRouterUrl = 'https://openrouter.ai/api/v1/chat/completions';

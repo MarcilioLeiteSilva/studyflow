@@ -105,3 +105,4 @@ No aplicativo Flutter, aponte a URL do backend nas configurações ou arquivo de
 const String backendBaseUrl = 'https://api.seudominio.com';
 ```
 Por padrão local, o app usa `http://10.0.2.2:3000` (emulador) ou `http://127.0.0.1:3000` (via ADB reverse).
+

@@ -11,7 +11,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Config endpoint for client-side to know API base URL
 app.get('/api/config', (req, res) => {
   res.json({
-    apiUrl: process.env.API_URL || 'http://localhost:3000',
+    apiUrl: process.env.API_URL || 'https://studyflow-study-backend.gtalg3.easypanel.host',
     env: process.env.NODE_ENV || 'production'
   });
 });
@@ -25,3 +25,4 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`[StudyFlow Admin] Painel Administrativo rodando na porta ${PORT}`);
   console.log(`[StudyFlow Admin] Acesse em http://localhost:${PORT}`);
 });
+

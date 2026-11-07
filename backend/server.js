@@ -50,6 +50,10 @@ if (process.env.DATABASE_URL) {
       ssl: process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL.includes('localhost') && !process.env.DATABASE_URL.includes('studyflow-db') ? { rejectUnauthorized: false } : false
     });
 
+    pool.on('error', (err) => {
+      console.error('[PostgreSQL Pool Error]', err.message);
+    });
+
     pool.query(`
       CREATE TABLE IF NOT EXISTS study_plans (
         id VARCHAR(100) PRIMARY KEY,
