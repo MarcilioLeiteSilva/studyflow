@@ -7,6 +7,7 @@ import '../../core/services/ai_service.dart';
 import '../../data/local/hive_storage.dart';
 import '../../data/local/premade_local_plans.dart';
 import '../../data/models/task_model.dart';
+import '../voice_tutor/document_plan_creator_screen.dart';
 
 class AIRoutineScreen extends StatefulWidget {
   const AIRoutineScreen({super.key});
@@ -31,7 +32,7 @@ class _AIRoutineScreenState extends State<AIRoutineScreen> with SingleTickerProv
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _loadRemotePlans();
   }
 
@@ -70,6 +71,7 @@ class _AIRoutineScreenState extends State<AIRoutineScreen> with SingleTickerProv
           unselectedLabelColor: Colors.grey,
           tabs: [
             Tab(icon: const Icon(Icons.library_books), text: l10n.aiTabPremade),
+            const Tab(icon: Icon(Icons.record_voice_over), text: 'Por Edital (Voz)'),
             Tab(icon: const Icon(Icons.auto_awesome), text: l10n.aiTabCustom),
           ],
         ),
@@ -78,6 +80,7 @@ class _AIRoutineScreenState extends State<AIRoutineScreen> with SingleTickerProv
         controller: _tabController,
         children: [
           _buildPremadeCatalogTab(l10n),
+          const DocumentPlanCreatorScreen(),
           _buildCustomAITab(l10n),
         ],
       ),
@@ -93,6 +96,61 @@ class _AIRoutineScreenState extends State<AIRoutineScreen> with SingleTickerProv
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          // BANNER: TUTOR DE VOZ POR ARQUIVO / EDITAL
+          InkWell(
+            onTap: () => _tabController.animateTo(1),
+            borderRadius: BorderRadius.circular(16),
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.deepPurple, Colors.indigo.shade600],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.deepPurple.withValues(alpha: 0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.record_voice_over, color: Colors.white, size: 24),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Text(
+                          '🎧 Criar por Arquivo ou Edital',
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                        ),
+                        SizedBox(height: 2),
+                        Text(
+                          'Envie PDF ou ementa e ouça aulas de 10 min com exercícios!',
+                          style: TextStyle(color: Colors.white70, fontSize: 11),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.arrow_forward_ios, color: Colors.white70, size: 14),
+                ],
+              ),
+            ),
+          ),
+
           // SEÇÃO 1: EMBARCADOS OFFLINE
           Row(
             children: [

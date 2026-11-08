@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../data/local/hive_storage.dart';
 import '../../data/local/premade_local_plans.dart';
 import '../../data/models/task_model.dart';
+import '../../data/models/lesson_module_model.dart';
 import '../config/ai_config.dart';
 
 class AIService {
@@ -269,5 +270,154 @@ Exemplo:
     if (code.startsWith('pt')) return 'Estude o Capítulo $chapter de $subject';
     if (code.startsWith('es')) return 'Estudiar Capítulo $chapter de $subject';
     return 'Study Chapter $chapter of $subject';
+  }
+
+  // 5. Geração de Micro-Aulas com Tutor de Voz a partir de Documento / Ementa
+  Future<List<LessonModuleModel>> generatePlanFromDocument({
+    required String contentText,
+    int durationMinutes = 10,
+    String methodology = 'teoria_exercicios',
+    int lessonsCount = 5,
+    String languageCode = 'pt',
+  }) async {
+    final prompt = '''
+Você é um Tutor Acadêmico de Áudio especialista em microlearning e fixação de aprendizado.
+Analise com rigor o seguinte conteúdo/ementa/documento e crie exatamente $lessonsCount micro-aulas narradas (cada uma com $durationMinutes minutos de duração estimada) e exercícios de fixação comentados.
+
+CONTEÚDO DO DOCUMENTO:
+$contentText
+
+REQUISITOS IMPORTANTES:
+1. Retorne APENAS um JSON válido bruto (sem crases ``` nem markdown).
+2. O formato deve ser um array de objetos:
+[
+  {
+    "id": "aula_1",
+    "title": "Título conciso da micro-aula",
+    "category": "Nome da disciplina ou tópico",
+    "durationMinutes": $durationMinutes,
+    "summaryLesson": "Texto completo, didático e envolvente da aula, escrito em tom de fala natural de professor explicando diretamente ao aluno para ser lido pelo leitor de voz. Use analogias, exemplos práticos e resuma as regras fundamentais.",
+    "exercises": [
+      {
+        "question": "Enunciado claro da questão sobre o que acabou de ser ensinado",
+        "options": ["Opção A", "Opção B", "Opção C", "Opção D"],
+        "correctIndex": 0,
+        "explanation": "Comentário falado pelo tutor justificando por que a opção está correta e alertando sobre as armadilhas das opções incorretas."
+      }
+    ]
+  }
+]
+''';
+
+    // Rota A: Chave Própria (BYOK)
+    if (customApiKey.trim().isNotEmpty) {
+      final key = customApiKey.trim();
+      try {
+        if (key.startsWith('AIza')) {
+          final geminiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=$key';
+          final res = await http.post(
+            Uri.parse(geminiUrl),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'contents': [{'parts': [{'text': prompt}]}],
+              'generationConfig': {'temperature': 0.7}
+            }),
+          ).timeout(const Duration(seconds: 20));
+
+          if (res.statusCode == 200) {
+            final data = jsonDecode(res.body);
+            final raw = data['candidates']?[0]?['content']?['parts']?[0]?['text'] ?? '';
+            return _parseLessonsJson(raw);
+          }
+        } else {
+          final res = await http.post(
+            Uri.parse(AIConfig.openRouterUrl),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $key',
+              'HTTP-Referer': AIConfig.siteUrl,
+              'X-Title': AIConfig.appName,
+            },
+            body: jsonEncode({
+              'model': AIConfig.defaultModelId,
+              'messages': [{'role': 'user', 'content': prompt}],
+              'temperature': 0.7,
+            }),
+          ).timeout(const Duration(seconds: 20));
+
+          if (res.statusCode == 200) {
+            final data = jsonDecode(res.body);
+            final raw = data['choices']?[0]?['message']?['content'] ?? '';
+            return _parseLessonsJson(raw);
+          }
+        }
+      } catch (_) {}
+    }
+
+    // Rota B: Backend da VPS
+    try {
+      final res = await http.post(
+        Uri.parse('$backendUrl/api/plans/generate-from-doc'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'contentText': contentText,
+          'durationMinutes': durationMinutes,
+          'methodology': methodology,
+          'lessonsCount': lessonsCount,
+          'languageCode': languageCode,
+        }),
+      ).timeout(const Duration(seconds: 20));
+
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        if (data['success'] == true && data['lessons'] is List) {
+          final list = data['lessons'] as List;
+          return list.map((e) => LessonModuleModel.fromJson(Map<String, dynamic>.from(e))).toList();
+        }
+      }
+    } catch (_) {}
+
+    // Rota C: Fallback Local Estruturado
+    return _generateLocalLessons(contentText, lessonsCount, durationMinutes);
+  }
+
+  List<LessonModuleModel> _parseLessonsJson(String raw) {
+    final clean = raw.replaceAll('```json', '').replaceAll('```', '').trim();
+    final List<dynamic> list = jsonDecode(clean);
+    return list.map((e) => LessonModuleModel.fromJson(Map<String, dynamic>.from(e))).toList();
+  }
+
+  List<LessonModuleModel> _generateLocalLessons(String content, int count, int duration) {
+    final lines = content.split('\n').where((l) => l.trim().length > 3).toList();
+    final List<LessonModuleModel> lessons = [];
+
+    for (int i = 0; i < count; i++) {
+      final topic = i < lines.length ? lines[i].trim() : 'Tópico Fundamental ${i + 1}';
+      lessons.add(
+        LessonModuleModel(
+          id: 'local_mod_${i + 1}',
+          title: topic.length > 40 ? '${topic.substring(0, 37)}...' : topic,
+          category: 'Estudo Focado',
+          durationMinutes: duration,
+          summaryLesson: 'Olá! Nesta micro-aula de $duration minutos, vamos focar em $topic. '
+              'Este conteúdo é essencial para a sua preparação. A ideia principal aqui é compreender as bases '
+              'estruturais e aplicá-las em questões práticas com atenção aos detalhes e conceitos fundamentais.',
+          exercises: [
+            LessonExercise(
+              question: 'Com base no conceito de $topic, qual é a alternativa correta?',
+              options: [
+                'A compreensão dos fundamentos é essencial para resolução de problemas.',
+                'O tema é irrelevante e não exige atenção do estudante.',
+                'Não é necessário praticar exercícios para fixar este conteúdo.',
+                'A teoria pode ser ignorada em exames e testes práticos.',
+              ],
+              correctIndex: 0,
+              explanation: 'A alternativa A está correta porque a base teórica estruturada é indispensável para resolver questões e fixar o conhecimento de forma duradoura.',
+            ),
+          ],
+        ),
+      );
+    }
+    return lessons;
   }
 }

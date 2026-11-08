@@ -55,6 +55,8 @@ dependencies:
   http: ^1.6.0
   google_mobile_ads: ^5.2.0
   facebook_audience_network: ^1.0.1
+  file_picker: ^11.0.3
+  flutter_tts: ^4.2.5
   # firebase_core: ^4.4.0
   # cloud_firestore: ^6.1.2
   # firebase_auth: ^6.1.4

@@ -332,6 +332,112 @@ Exemplo:
   }
 });
 
+// POST /api/plans/generate-from-doc - Gerador de Micro-Aulas Narradas com Exercícios por Documento
+app.post('/api/plans/generate-from-doc', aiRateLimiter, async (req, res) => {
+  const { contentText, durationMinutes, methodology, lessonsCount, languageCode } = req.body;
+
+  if (!contentText || contentText.trim().length === 0) {
+    return res.status(400).json({ success: false, error: 'O conteúdo ou texto do documento é obrigatório.' });
+  }
+
+  const apiKey = process.env.GEMINI_API_KEY || process.env.OPENROUTER_API_KEY;
+  if (!apiKey) {
+    return res.status(503).json({
+      success: false,
+      error: 'Chave de IA não configurada no servidor (.env).'
+    });
+  }
+
+  const targetLessons = lessonsCount || 5;
+  const targetDuration = durationMinutes || 10;
+  const lang = languageCode || 'pt';
+
+  const prompt = `
+Você é um Tutor Acadêmico de Áudio especialista em microlearning e fixação de aprendizado.
+Analise com rigor o seguinte conteúdo/ementa/documento e crie exatamente ${targetLessons} micro-aulas narradas (cada uma com ${targetDuration} minutos de duração estimada) e exercícios de fixação comentados.
+
+CONTEÚDO DO DOCUMENTO:
+${contentText}
+
+REQUISITOS IMPORTANTES:
+1. Retorne APENAS um JSON válido bruto (sem crases \`\`\` nem markdown).
+2. O formato deve ser um array de objetos:
+[
+  {
+    "id": "aula_1",
+    "title": "Título conciso da micro-aula",
+    "category": "Nome da disciplina ou tópico",
+    "durationMinutes": ${targetDuration},
+    "summaryLesson": "Texto completo, didático e envolvente da aula, escrito em tom de fala natural de professor explicando diretamente ao aluno para ser lido pelo leitor de voz. Use analogias, exemplos práticos e resuma as regras fundamentais.",
+    "exercises": [
+      {
+        "question": "Enunciado claro da questão sobre o que acabou de ser ensinado",
+        "options": ["Opção A", "Opção B", "Opção C", "Opção D"],
+        "correctIndex": 0,
+        "explanation": "Comentário falado pelo tutor justificando por que a opção está correta e alertando sobre as armadilhas das opções incorretas."
+      }
+    ]
+  }
+]
+`;
+
+  try {
+    if (process.env.GEMINI_API_KEY) {
+      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
+      const response = await fetch(geminiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.7 }
+        })
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`Gemini API Error: ${response.status} - ${errText}`);
+      }
+
+      const data = await response.json();
+      const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
+      const cleanJson = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+      const lessons = JSON.parse(cleanJson);
+
+      return res.json({ success: true, source: 'gemini', lessons });
+    }
+
+    if (process.env.OPENROUTER_API_KEY) {
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: 'google/gemini-2.0-flash-001',
+          messages: [{ role: 'user', content: prompt }],
+          temperature: 0.7
+        })
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`OpenRouter Error: ${response.status} - ${errText}`);
+      }
+
+      const data = await response.json();
+      const rawText = data.choices?.[0]?.message?.content || '[]';
+      const cleanJson = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+      const lessons = JSON.parse(cleanJson);
+
+      return res.json({ success: true, source: 'openrouter', lessons });
+    }
+  } catch (error) {
+    console.error('[StudyFlow API] Erro ao gerar plano por documento:', error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // -------------------------------------------------------------
 // Rotas Administrativas (Painel Admin & Gerenciamento)
 // -------------------------------------------------------------

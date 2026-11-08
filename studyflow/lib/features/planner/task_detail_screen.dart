@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:flutter_code/l10n/app_localizations.dart';
 import '../../data/local/hive_storage.dart';
 import '../../data/models/task_model.dart';
+import '../../data/models/lesson_module_model.dart';
+import '../voice_tutor/voice_tutor_lesson_screen.dart';
 import '../pomodoro/focus_mode_screen.dart';
 
 class TaskDetailScreen extends StatefulWidget {
@@ -179,6 +181,80 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                   ),
                 ],
               ),
+            ),
+            // Tutor de Voz Button se a tarefa tiver micro-aula e exercícios
+            Builder(
+              builder: (ctx) {
+                final audioLesson = LessonModuleModel.fromTaskModel(widget.task);
+                if (audioLesson == null) return const SizedBox.shrink();
+                return Container(
+                  margin: const EdgeInsets.only(top: 16),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [theme.primaryColor, theme.primaryColor.withValues(alpha: 0.8)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: theme.primaryColor.withValues(alpha: 0.25),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.headphones, color: Colors.white, size: 26),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Micro-Aula com Tutor de Voz',
+                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                            ),
+                            Text(
+                              '${audioLesson.durationMinutes} min narrados • ${audioLesson.exercises.length} exercícios comentados',
+                              style: const TextStyle(color: Colors.white70, fontSize: 12),
+                            ),
+                          ],
+                        ),
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: theme.primaryColor,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => VoiceTutorLessonScreen(
+                                lesson: audioLesson,
+                                parentTask: widget.task,
+                              ),
+                            ),
+                          );
+                        },
+                        child: const Text('Ouvir Aula', style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 24),
 
